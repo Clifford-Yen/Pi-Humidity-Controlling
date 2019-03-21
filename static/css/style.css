@@ -1,0 +1,56 @@
+#overlay.progress {
+    background: rgba(0, 0, 0, .3);
+    position: fixed;
+    display: block;
+    height: 100%;
+    width: 100%;
+    top: 0;
+    left: 0;
+    z-index: 10;
+    pointer-events: none;
+}
+
+.inline-item {
+    display: inline;
+    margin-right: 1em;
+}
+
+.trivial-label {
+    display: none;
+    color: rgba(255, 255, 255, 0);
+}
+@media (min-width: 550px) {
+    .trivial-label {
+        display: block;
+    }
+}
+
+.button-green {
+    color: #FFF;
+    background-color: #43A047;
+    border-color: #43A047; }
+.button-green:hover,
+.button-green:focus {
+    color: #FFF;
+    background-color: #2E7D32;
+    border-color: #2E7D32; }
+
+.button-blue {
+    color: #FFF;
+    background-color: #1E88E5;
+    border-color: #1E88E5; }
+.button-blue:hover,
+.button-blue:focus {
+    color: #FFF;
+    background-color: #1565C0;
+    border-color: #1565C0; }
+
+.button-red {
+    color: #FFF;
+    background-color: #EF5350;
+    border-color: #EF5350; }
+.button-red:hover,
+.button-red:focus {
+    color: #FFF;
+    background-color: #E53935;
+    border-color: #E53935; }
