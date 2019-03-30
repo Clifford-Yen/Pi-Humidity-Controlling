@@ -64,12 +64,21 @@
         <button id="change-chart">Change to Material</button>
       </div>
 
+      <!-- <div class='row'>
+        <table style='width: 100%; margin-bottom: 0;'>
+          <tr>
+            <td style='border: none; text-align: left;'><button>Previous Day</button></td>
+            <td style='border: none; text-align: right;'><button>Next Day</button></td>
+          </tr>
+        </table>
+      </div> -->
+
       <div id="chart_div" style='width: 100%; height: 60vh;'></div>
     </div>
 
   </body>
 
-  <script type="text/javascript" src="{{ url_for('static', filename='js/aircon_remote.js') }}"></script>
+  <script type="text/javascript" src="{{ url_for('static', filename='js/ajax_control.js') }}"></script>
   <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
   <script>
     google.charts.load('current', {'packages':['line', 'corechart']});

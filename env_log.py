@@ -3,12 +3,17 @@ import Adafruit_DHT
 import numpy
 import time
 
-def getMean(data, withStd=False):
+def getMean(data, withStd=False, removeOutlier=False):
     ''' data should be a list. '''
     elements = numpy.array(data)
     mean = numpy.mean(elements, axis = 0)
+    std = numpy.std(elements, axis = 0)
+    if removeOutlier:
+        for i in range(len(mean)):
+            if std[i] > 1e-3:
+                data = [x for x in data if (x[i] > mean[i] - 2*std[i]) and (x[i] < mean[i] + 2*std[i])]
+        mean, std = getMean(data, withStd=True)
     if withStd:
-        std = numpy.std(elements, axis = 0)
         return mean, std
     else:
         return mean
@@ -33,11 +38,7 @@ def getTempHumidityMean(sensor, pin, sampleNum=20, interval=2):
     while len(data) < sampleNum:
         time.sleep(interval)
         data.append(getTempHumidity(sensor, pin))
-    mean, std = getMean(data, withStd=True)
-    for i in range(2):
-        if std[i] > 1e-3:
-            data = [x for x in data if (x[i] > mean[i] - 2*std[i]) and (x[i] < mean[i] + 2*std[i])]
-    mean = getMean(data)
+    mean = getMean(data, removeOutlier=True)
     temperature = mean[0]
     humidity = mean[1]
     return temperature, humidity

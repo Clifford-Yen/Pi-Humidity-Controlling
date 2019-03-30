@@ -14,7 +14,7 @@ tempHumidity_db_path = '/home/pi/HumidityControlling/TempHumidity.db'
 aircon_db_path = '/home/pi/HumidityControlling/aircon.db'
 
 @app.route("/")
-def tempHumidity(interval=2):
+def tempHumidity():
     temperature, humidity = getTempHumidity(sensor, pin)
     return render_template("tempHumidity.html", temp=temperature, hum=humidity)
 
@@ -23,28 +23,37 @@ def env_db():
     logs, from_date_str, to_date_str = get_records()
     # reformated_logs = [re.split('-| |:', x[1])+[x[2], x[3]] for x in logs]
     reformated_logs = [[*re.split('-| |:', x[1]), x[2], x[3]] for x in logs]
-    updated_logs = appendAirconStatus(reformated_logs)
-    return render_template("env_db.html", logs = updated_logs, 
-        from_date = from_date_str, to_date = to_date_str,
-        query_string = request.query_string)
+    if len(reformated_logs) >= 1:
+        updated_logs = appendAirconStatus(reformated_logs)
+        return render_template("env_db.html", logs = updated_logs, 
+            from_date = from_date_str, to_date = to_date_str,
+            query_string = request.query_string)
+    else:
+        return render_template("no_record.html")
 
 @app.route("/turnAircon", methods=['POST'])
 def turnAircon():
     operation = request.form.get('operation', None)
     if operation is not None:
-        subprocess.call(['irsend', 'SEND_ONCE', 'SAMPO_AirCon', operation])
-        checkTable = {
-            'ventilation_on': 'ventilation',
-            'dehumidify_on': 'on',
-            'off': 'off'
-        }
+        status = sendControl(operation)
         with sqlite3.connect(aircon_db_path) as conn:
             curs = conn.cursor()
-            curs.execute("""INSERT INTO log values((?), datetime(CURRENT_TIMESTAMP, 'localtime'), (?))""", (curs.lastrowid, checkTable[operation]))
+            curs.execute("""INSERT INTO log values((?), datetime(CURRENT_TIMESTAMP, 'localtime'), (?))""", (curs.lastrowid, status))
             conn.commit()
         return jsonify({'result': 'success'})
     else:
         return jsonify({'result': 'failed'})
+
+def sendControl(operation, remoteName='SAMPO_AirCon'):
+    """ Do irrecord on your Raspberry Pi first and replace the remote and operation name here.
+    My operation can be 'off', 'dehumidify_on' and 'ventilation_on'. """
+    subprocess.call(['irsend', 'SEND_ONCE', remoteName, operation])
+    statusTable = {
+        'ventilation_on': 'ventilation',
+        'dehumidify_on': 'on',
+        'off': 'off'
+    }
+    return statusTable[operation]
 
 def get_datetime_string_hours_before(hr):
     targetTime = datetime.now() - timedelta(hours=hr)
